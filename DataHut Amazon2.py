@@ -1,34 +1,40 @@
-# Importing libraries
 import time
 import random
-import pandas as pd
-from bs4 import BeautifulSoup
 from selenium import webdriver
-pd.options.mode.chained_assignment = None
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
+from bs4 import BeautifulSoup
+import pandas as pd
+from selenium.webdriver.common.keys import Keys
 
+# Set delay between requests
+delay_between_requests = 5  # seconds
 
+# Set user agents for rotation
+user_agents = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+]
+
+# Create a new Chrome session
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-
 
 # Function to delay some process
 def delay():
     time.sleep(random.randint(3, 10))
 
-
 # Scrolling down the page in order to overcome Lazy Loading
 def lazy_loading():
-    element = driver.find_element(By.TAG_NAME, 'body')
     count = 0
     while count < 20:
+        element = driver.find_element(By.TAG_NAME, 'body')  # Find element inside the loop
         element.send_keys(Keys.PAGE_DOWN)
         delay()
         count += 1
-
 
 # Function to fetch the product links of products
 def fetch_product_links_and_ranks():
@@ -44,14 +50,12 @@ def fetch_product_links_and_ranks():
                 product_links.append('https://www.amazon.com' + product_link['href'])
         ranking.append(product_section.find('span',{'class': 'zg-bdg-text'}).text)
 
-
 # Function to extract content of the page
 def extract_content(url):
     driver.get(url)
     page_content = driver.page_source
     product_soup = BeautifulSoup(page_content, 'html.parser')
     return product_soup
-
 
 # Function to extract product name
 def extract_product_name(soup):
@@ -62,7 +66,6 @@ def extract_product_name(soup):
     except:
         name_of_product = 'Product name not available '
         data['product name'].iloc[product] = name_of_product
-
 
 # Function to extract brand name
 def extract_brand(soup):
@@ -78,7 +81,6 @@ def extract_brand(soup):
             brand = 'Brand data not available'
             data['brand'].iloc[product] = brand
 
-
 # Function to extract price
 def extract_price(soup):
     try:
@@ -90,7 +92,6 @@ def extract_price(soup):
         price = 'Price data not available'
         data['price(in dollar)'].iloc[product] = price
 
-
 # Function to extract size
 def extract_size(soup):
     try:
@@ -100,7 +101,6 @@ def extract_size(soup):
     except:
         size = 'Size data not available'
         data['size'].iloc[product] = size
-
 
 # Function to extract star rating
 def extract_star_rating(soup):
@@ -120,7 +120,6 @@ def extract_star_rating(soup):
         
     data['star rating'].iloc[product] = star   
 
-
 # Function to extract number of ratings
 def extract_num_of_ratings(soup):
     try:
@@ -131,7 +130,6 @@ def extract_num_of_ratings(soup):
         star = 'Number of rating not available'
         data['number of ratings'].iloc[product] = star
 
-
 # Function to extract color
 def extract_color(soup):
     try:
@@ -141,7 +139,6 @@ def extract_color(soup):
     except:
         color = 'Color not available'
         data['color'].iloc[product] = color
-
 
 # Function to extract hardware interface
 def extract_hardware_interface(soup):
@@ -154,7 +151,6 @@ def extract_hardware_interface(soup):
         hardware_interface = 'Hardware interface data not available'
         data['hardware interface'].iloc[product] = hardware_interface
 
-
 # Function to extract compatible devices
 def extract_compatible_devices(soup):
     try:
@@ -165,7 +161,6 @@ def extract_compatible_devices(soup):
     except:
         compatible_devices = 'Compatible devices data not available'
         data['compatible devices'].iloc[product] = compatible_devices
-
 
 # Function to extract data transfer rate
 def extract_data_transfer_rate(soup):
@@ -178,18 +173,15 @@ def extract_data_transfer_rate(soup):
         data_transfer_rate = 'Data transfer rate data not available'
         data['data transfer rate'].iloc[product] = data_transfer_rate
 
-
 # Function to extract mounting type
 def extract_mounting_type(soup):
     try:
-        mounting_type = soup.find('tr', attrs={"class": "a-spacing-small po-mounting_type"}).text.strip().split('  ')[
-            1].strip()
+        mounting_type = soup.find('tr', attrs={"class": "a-spacing-small po-mounting_type"}).text.strip().split('  ')[1].strip()
         data['mounting type'].iloc[product] = mounting_type
 
     except:
         mounting_type = 'Mounting type data not available'
         data['mounting type'].iloc[product] = mounting_type
-
 
 # Function to extract special features
 def extract_special_features(soup):
@@ -202,31 +194,26 @@ def extract_special_features(soup):
         special_feature = 'Special features data not available'
         data['special features'].iloc[product] = special_feature
 
-
 # Function to extract connectivity technology
 def extract_connectivity_technology(soup):
     try:
         connectivity_technology = \
-        soup.find('tr', attrs={"class": "a-spacing-small po-connectivity_technology"}).text.strip().split('  ')[
-            1].strip()
+        soup.find('tr', attrs={"class": "a-spacing-small po-connectivity_technology"}).text.strip().split('  ')[1].strip()
         data['connectivity technology'].iloc[product] = connectivity_technology
 
     except:
         connectivity_technology = 'Connectivity technology data not available'
         data['connectivity technology'].iloc[product] = connectivity_technology
 
-
 # Function to extract connector type
 def extract_connector_type(soup):
     try:
-        connector_type = soup.find('tr', attrs={"class": "a-spacing-small po-connector_type"}).text.strip().split('  ')[
-            1].strip()
+        connector_type = soup.find('tr', attrs={"class": "a-spacing-small po-connector_type"}).text.strip().split('  ')[1].strip()
         data['connector type'].iloc[product] = connector_type
 
     except:
         connector_type = 'Connector type data not available'
         data['connector type'].iloc[product] = connector_type
-
 
 # Function to extract date first available
 def extract_date_first_available(soup):
@@ -247,23 +234,22 @@ def extract_date_first_available(soup):
 
 # Fetching the product links of all items
 product_links = []
-ranking=[]
-for page in range(1,3):               # to iterate over the 2 pages in which the products are divided into
-    start_url = f'https://www.amazon.com/Best-Sellers-Computers-Accessories/zgbs/pc/ref=zg_bs_pg_{page}?_encoding=UTF8&pg={page}'
+ranking = []
+for page in range(1, 3):  # to iterate over the 2 pages in which the products are divided into
+    start_url = f"https://www.amazon.com/Best-Sellers-Computers-Accessories/zgbs/pc/ref=zg_bs_pg_{page}?_encoding=UTF8&pg={page}"
     driver.get(start_url)
-    lazy_loading()                     # to overcome lazy loading
-    fetch_product_links_and_ranks()    # to fetch the links to products  
-
+    lazy_loading()  # to overcome lazy loading
+    fetch_product_links_and_ranks()  # to fetch the links to products
+    time.sleep(delay_between_requests)  # add a delay between requests
+    driver.execute_script("userAgent = '{}'".format(random.choice(user_agents)))  # rotate user agent
 
 # Creating a dictionary of the required columns
 data_dic = {'product url': [],'ranking': [], 'brand': [], 'product name': [],
             'number of ratings': [], 'size': [], 'star rating': [], 'price(in dollar)': [], 'color': [],
             'hardware interface': [], 'compatible devices': [], 'connectivity technology': [], 'connector type': [], 'data transfer rate':[], 'mounting type': [], 'special features':[], 'date first available':[]}
 
-
 # Creating a dataframe with those columns
 data = pd.DataFrame(data_dic)
-
 
 # Assigning the scraped links and rankings to the columns 'product url' and 'ranking'
 data['product url'] = product_links
@@ -317,7 +303,6 @@ for product in range(len(data)):
 
     # date first available
     extract_date_first_available(product_content)
-
 
 # saving the resultant dataframe as a csv file
 data.to_csv('amazon_best_sellers.csv')
