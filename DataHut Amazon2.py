@@ -7,7 +7,8 @@ from selenium import webdriver
 pd.options.mode.chained_assignment = None
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from webdriver.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 
 
