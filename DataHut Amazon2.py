@@ -9,6 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from bs4 import BeautifulSoup
 import pandas as pd
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
 
 # Set delay between requests
 delay_between_requests = 5  # seconds
@@ -21,7 +22,9 @@ user_agents = [
 ]
 
 # Create a new Chrome session
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+options = Options()
+options.add_argument('--lang=en-US')  # Set the language to English
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 # Function to delay some process
 def delay():
@@ -236,7 +239,7 @@ def extract_date_first_available(soup):
 product_links = []
 ranking = []
 for page in range(1, 3):  # to iterate over the 2 pages in which the products are divided into
-    start_url = f"https://www.amazon.com/Best-Sellers-Computers-Accessories/zgbs/pc/ref=zg_bs_pg_{page}?_encoding=UTF8&pg={page}"
+    start_url = f"https://www.amazon.com/Best-Sellers-Computers-Accessories/zgbs/pc/ref=zg_bs_pg_{page}_pc?_encoding=UTF8&pg={page}"
     driver.get(start_url)
     lazy_loading()  # to overcome lazy loading
     fetch_product_links_and_ranks()  # to fetch the links to products
